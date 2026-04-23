@@ -1,0 +1,40 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: passwd-postgres
+    environment:
+      POSTGRES_USER: fanbo
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - passwd-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: passwd-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # UI http://localhost:15672
+    networks:
+      - passwd-net
+
+  maildev:
+    image: maildev/maildev
+    container_name: passwd-maildev
+    ports:
+      - "1080:1080"   # UI http://localhost:1080 sent mails
+      - "1025:1025"   # SMTP
+    networks:
+      - passwd-net
+
+volumes:
+  postgres-data:
+
+networks:
+  passwd-net:
+    driver: bridge
