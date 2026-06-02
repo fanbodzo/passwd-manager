@@ -1,0 +1,159 @@
+/* Definicje motywów */
+:root {
+    /* DOMYŚLNY - Ciemny motyw szarości */
+    --bg-color: #1a1a1a;
+    --card-bg: #262626;
+    --text-main: #f2f2f2;
+    --text-muted: #a3a3a3;
+    --primary-color: #595959;
+    --primary-hover: #737373;
+    --border-color: #404040;
+}
+
+.theme-light {
+    /* Jasny motyw szarości */
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --text-main: #1a1a1a;
+    --text-muted: #595959;
+    --primary-color: #d9d9d9;
+    --primary-hover: #bfbfbf;
+    --border-color: #e6e6e6;
+}
+
+.theme-slaughter {
+    /* Motyw SLAUGHTER (CS:GO) */
+    --bg-color: #0d0000;
+    --card-bg: #1a0505;
+    --text-main: #ffcccc;
+    --text-muted: #cc6666;
+    --primary-color: #8c0000;
+    --primary-hover: #b30000;
+    --border-color: #4d0000;
+}
+
+/* Podstawowy reset i style globalne */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    padding: 50px 20px;
+}
+
+.container {
+    max-width: 500px;
+    width: 100%;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h1 { font-size: 1.5rem; }
+
+/* Przyciski zmiany motywu */
+.theme-switcher button {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+.theme-switcher button:hover {
+    background-color: var(--primary-color);
+}
+.slaughter-btn {
+    border-color: #8c0000 !important;
+    color: #ff4d4d !important;
+}
+
+/* Wygląd głównej karty */
+.card {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.card h2 { margin-bottom: 20px; }
+
+.hidden { display: none !important; }
+
+/* Pola tekstowe */
+.input-group { margin-bottom: 15px; }
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--border-color);
+}
+
+/* Przyciski */
+button { transition: 0.2s; }
+
+button.btn-primary, button.btn-secondary {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+button.btn-primary { background-color: var(--primary-color); }
+button.btn-primary:hover { background-color: var(--primary-hover); }
+
+button.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+button.btn-secondary:hover { background-color: var(--border-color); color: var(--text-main); }
+
+/* Lista haseł */
+#password-list { list-style: none; }
+
+#password-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#password-list li:last-child { border-bottom: none; }
+#password-list button { width: auto; padding: 6px 12px; font-size: 0.8rem; }

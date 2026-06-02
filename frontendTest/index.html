@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passwd Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+<div class="container">
+  <header>
+    <h1>🔒 VaultManager</h1>
+    <div class="theme-switcher">
+      <button onclick="setTheme('theme-light')">Light</button>
+      <button onclick="setTheme('theme-dark')">Dark</button>
+      <button onclick="setTheme('theme-slaughter')" class="slaughter-btn">🔪 Slaughter</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Sekcja Logowania -->
+    <section id="login-section" class="card">
+      <h2>Zaloguj się</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" required placeholder="user@example.com">
+        </div>
+        <div class="input-group">
+          <label for="password">Hasło główne</label>
+          <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-primary">Wejdź do sejfu</button>
+      </form>
+    </section>
+
+    <!-- Sekcja Sejfu (Widoczna po zalogowaniu) -->
+    <section id="vault-section" class="card hidden">
+      <h2>Twoje Hasła</h2>
+      <ul id="password-list">
+        <li>
+          <span>Facebook</span>
+          <button class="btn-secondary">Kopiuj hasło</button>
+        </li>
+        <li>
+          <span>Konto Bankowe</span>
+          <button class="btn-secondary">Kopiuj hasło</button>
+        </li>
+        <li>
+          <span>GitHub</span>
+          <button class="btn-secondary">Kopiuj hasło</button>
+        </li>
+      </ul>
+      <button class="btn-primary" style="margin-top: 20px;">+ Dodaj nowe hasło</button>
+      <button class="btn-secondary" style="margin-top: 10px;" onclick="logout()">Wyloguj</button>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
