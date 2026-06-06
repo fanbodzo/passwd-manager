@@ -1,23 +1,196 @@
+import { useState, useEffect } from 'react';
+
 export default function Vault({ onLogout }) {
-    return (
-        <section className="card">
-            <h2>Twoje Hasła</h2>
-            <ul id="password-list">
-                <li>
-                    <span>Facebook</span>
-                    <button className="btn-secondary">Kopiuj</button>
-                </li>
-                <li>
-                    <span>Konto Bankowe</span>
-                    <button className="btn-secondary">Kopiuj</button>
-                </li>
-                <li>
-                    <span>GitHub</span>
-                    <button className="btn-secondary">Kopiuj</button>
-                </li>
-            </ul>
-            <button className="btn-primary" style={{ marginTop: '20px' }}>+ Dodaj nowe hasło</button>
-            <button className="btn-secondary" style={{ marginTop: '10px' }} onClick={onLogout}>Wyloguj</button>
-        </section>
-    );
+  const [passwords, setPasswords] = useState([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState('');
+    
+  const [revealedPasswords, setRevealedPasswords] = useState({});
+
+  const [domainName, setDomainName] = useState('');
+  const [login, setLogin] = useState('');
+  const [passwordValue, setPasswordValue] = useState('');
+
+  const fetchPasswords = async () => {
+    try {
+      const response = await fetch('/api/vault/all'); 
+      if (response.ok) {
+        const data = await response.json();
+        setPasswords(data);
+        setRevealedPasswords({});
+      } else if (response.status === 401 || response.status === 403) {
+        onLogout();
+      } else {
+        setError('Błąd pobierania haseł z serwera.');
+      }
+    } catch (err) {
+      setError('Brak połączenia z API Gateway.');
+    }
+  };
+
+  useEffect(() => {
+    fetchPasswords();
+  }, []);
+
+  const handleRevealPassword = async (id) => {
+    if (revealedPasswords[id]) {
+      setRevealedPasswords(prev => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/vault/${id}/password`);
+      if (response.ok) {
+        const decryptedPassword = await response.text(); 
+        setRevealedPasswords(prev => ({ ...prev, [id]: decryptedPassword }));
+      } else {
+        setError('Nie udało się odszyfrować hasła.');
+      }
+    } catch (err) {
+      setError('Błąd serwera przy odszyfrowywaniu.');
+    }
+  };
+
+  const handleAddPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/vault/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          domainName: domainName, 
+          login: login, 
+          password: passwordValue 
+        })
+      });
+
+      if (response.ok) {
+        setDomainName('');
+        setLogin('');
+        setPasswordValue('');
+        setIsAdding(false);
+        fetchPasswords();
+      } else {
+        setError('Nie udało się zapisać hasła.');
+      }
+    } catch (err) {
+      setError('Błąd serwera podczas zapisywania.');
+    }
+  };
+
+  const handleDeletePassword = async (id) => {
+    try {
+      const response = await fetch(`/api/vault/delete/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        fetchPasswords();
+      } else {
+        setError('Nie udało się usunąć wpisu.');
+      }
+    } catch (err) {
+      setError('Błąd podczas usuwania.');
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('Hasło skopiowane do schowka!');
+  };
+
+  return (
+    <section className="card" style={{ width: '100%' }}>
+      <h2>Twoje Hasła</h2>
+      {error && <p style={{ color: '#ff4d4d', fontWeight: 'bold', marginBottom: '15px' }}>{error}</p>}
+
+      <ul id="password-list">
+        {passwords.map((item) => (
+          <li key={item.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '10px' }}>
+              <div>
+                <strong style={{ display: 'block', fontSize: '1.1rem' }}>{item.domainName}</strong>
+                <small style={{ color: 'var(--text-muted)' }}>{item.login}</small>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => handleRevealPassword(item.id)}
+                  title="Pokaż/Ukryj hasło"
+                >
+                  {revealedPasswords[item.id] ? '🙈' : '👁️'}
+                </button>
+
+                {/* Przycisk kopiowania pojawia się TYLKO jak hasło jest odszyfrowane */}
+                {revealedPasswords[item.id] && (
+                  <button 
+                    className="btn-secondary" 
+                    onClick={() => copyToClipboard(revealedPasswords[item.id])}>
+                    📋 Kopiuj
+                  </button>
+                )}
+
+                <button 
+                  className="btn-secondary" 
+                  style={{ color: '#ff4d4d', borderColor: '#4d0000' }}
+                  onClick={() => handleDeletePassword(item.id)}>
+                  🗑️ Usuń
+                </button>
+              </div>
+            </div>
+
+            {/* Miejsce na wyświetlanie hasła (gwiazdki albo odszyfrowane) */}
+            <div style={{ 
+              backgroundColor: 'var(--bg-color)', 
+              padding: '8px 12px', 
+              borderRadius: '4px', 
+              width: '100%',
+              fontFamily: 'monospace',
+              fontSize: '1.2rem',
+              letterSpacing: revealedPasswords[item.id] ? 'normal' : '3px'
+            }}>
+              {revealedPasswords[item.id] ? revealedPasswords[item.id] : '••••••••'}
+            </div>
+
+          </li>
+        ))}
+
+        {passwords.length === 0 && !error && (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Brak zapisanych haseł w sejfie.</p>
+        )}
+      </ul>
+
+      {isAdding ? (
+        <form onSubmit={handleAddPassword} style={{ marginTop: '20px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
+          <h3 style={{ marginBottom: '10px' }}>Dodaj nowy wpis</h3>
+          <div className="input-group">
+            <label>Domena / Serwis</label>
+            <input type="text" required value={domainName} onChange={(e) => setDomainName(e.target.value)} />
+          </div>
+          <div className="input-group">
+            <label>Login / E-mail</label>
+            <input type="text" required value={login} onChange={(e) => setLogin(e.target.value)} />
+          </div>
+          <div className="input-group">
+            <label>Hasło</label>
+            <input type="password" required value={passwordValue} onChange={(e) => setPasswordValue(e.target.value)} />
+          </div>
+          <button type="submit" className="btn-primary" style={{ marginBottom: '10px' }}>Zapisz w sejfie</button>
+          <button type="button" className="btn-secondary" onClick={() => setIsAdding(false)}>Anuluj</button>
+        </form>
+      ) : (
+        <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => setIsAdding(true)}>
+          + Dodaj nowe hasło
+        </button>
+      )}
+
+      <button className="btn-secondary" style={{ marginTop: '10px' }} onClick={onLogout}>Wyloguj</button>
+    </section>
+  );
 }
