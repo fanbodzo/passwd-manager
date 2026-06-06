@@ -21,12 +21,15 @@ public class VaultController {
 
     @GetMapping("/all")
     public ResponseEntity<List<VaultEntry>> getAllEntries(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         String userId = authentication.getName();
         return ResponseEntity.ok(vaultService.getAllEntriesByUser(userId));
     }
 
     @GetMapping("/{id}/password")
-    public ResponseEntity<String> getVaultPassword(@PathVariable Long id){
+    public ResponseEntity<String> getVaultPassword(@PathVariable("id") Long id){
         try {
             return ResponseEntity.ok(vaultService.getUnencryptedEntryById(id));
         } catch (Exception e) {
@@ -46,7 +49,7 @@ public class VaultController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteVaultEntry(@PathVariable Long id) {
+    public ResponseEntity<String> deleteVaultEntry(@PathVariable("id") Long id) {
         try{
             vaultService.deleteEntry(id);
             return ResponseEntity.ok("success");

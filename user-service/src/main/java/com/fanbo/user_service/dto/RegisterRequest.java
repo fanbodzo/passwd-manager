@@ -1,5 +1,6 @@
 package com.fanbo.user_service.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Email cant be empty")
+    @Email(message = "Email format is incorrect")
     private String email;
 
 }
